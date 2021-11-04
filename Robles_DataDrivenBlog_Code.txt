@@ -1,0 +1,114 @@
+getwd()
+setwd("D:/Chris Robles/Documents/School/Data 101/Assignments/HW 6")
+
+airbnb <- read.csv("AB_NYC_2019.csv")
+airbnb
+
+colors <- c("yellow", "blue", "red", "green", "purple")
+########## PLOTS ##########################
+
+# 48,895 observations
+count<-airbnb$id
+length(count)
+
+# Staten Island has the fewest, Manhattan has the most followed by Brooklyn
+barplot(table(airbnb$neighbourhood_group), main = "Number of Listing Spaces by New York Boroughs", ylab = "Frequency", xlab = "Boroughs", col = colors)
+num_listings <- table(airbnb$neighbourhood_group)
+num_listings
+
+boxplot(price~neighbourhood_group, data = airbnb)
+
+barplot(table(airbnb$neighbourhood))
+
+boxplot(price~neighbourhood, data = airbnb)
+
+# Most frequent is entire home/appartment followed by Private rooms and shared rooms which is very small in comparison
+barplot(table(airbnb$room_type), main = "Room Types in NYC", ylab = "Frequency", xlab = "Type of Room", col = colors)
+
+# can't tell if there is a correlation between reviews and price
+plot(airbnb$reviews_per_month, airbnb$price)
+
+# hard to tell if number of reviews is correlated with price
+plot(airbnb$number_of_reviews, airbnb$price)
+
+# can't tell
+plot(airbnb$availability_365, airbnb$reviews_per_month)
+
+# can't tell
+plot(airbnb$availability_365, airbnb$price)
+
+# Manhattan on average has a higher price, followed by brooklyn, staten island, queens, and bronx
+tapply(airbnb$price, airbnb$neighbourhood_group, mean)
+
+ # Manhattan has the highest median price of 150, followed by brooklyn, queens/staten island, and bronx
+tapply(airbnb$price, airbnb$neighbourhood_group, median)
+
+# entire homes and apartements are pricest on average, more than 2x of a private room
+tapply(airbnb$price, airbnb$room_type, mean)
+
+# entire homes and aparemnts have a higher median price, more than 2x of private rooms
+tapply(airbnb$price, airbnb$room_type, median)
+
+
+# Looking at the two most frequently listed boroughs in NYC: Manhattan and Brooklyn
+
+# Manhattan
+manhattan_neighborhoods <- subset(airbnb, neighbourhood_group == "Manhattan", select = c(neighbourhood, price, room_type))
+manhattan_neighborhoods
+
+barplot(table(manhattan_neighborhoods$neighbourhood), main = "Number of Listing Spaces by Nieghbourhood in Manhattan", ylab = "Frequency", xlab = "Neighbourhood")
+
+boxplot(price~neighbourhood, data = manhattan_neighborhoods)
+
+# most listings is entire home/apartment followed by Private room
+barplot(table(manhattan_neighborhoods$room_type), main = "Room Types in Manhattan", ylab = "Frequency", xlab = "Type of Room", col = colors)
+
+# Average price of homes/apartments are 2x higher than private rooms
+tapply(manhattan_neighborhoods$price, manhattan_neighborhoods$room_type, mean)
+
+# Brooklyn
+brooklyn_neighborhoods <- subset(airbnb, neighbourhood_group == "Brooklyn", select = c(neighbourhood, price, room_type))
+brooklyn_neighborhoods
+
+barplot(table(brooklyn_neighborhoods$neighbourhood), main = "Number of Listing Spaces by Nieghbourhood in Brooklyn", ylab = "Frequency", xlab = "Neighbourhood")
+
+boxplot(price~neighbourhood, data = brooklyn_neighborhoods)
+
+# Most listings is private room followed by entire home/apartment
+barplot(table(brooklyn_neighborhoods$room_type), main = "Room Types in Brooklyn", ylab = "Frequency", xlab = "Type of Room", col = colors)
+
+# average prices are higher for entire homes/apartments by more than 2x that of private rooms
+tapply(brooklyn_neighborhoods$price, brooklyn_neighborhoods$room_type, mean)
+
+
+
+
+######### TOPIC ##########################
+
+# H0: Mean prices of Homes/apartments in Manhattan are the same price as in Brooklyn 
+# H1: Mean prices of Homes/apartments in Manhattan are higher than in Brooklyn?
+
+brooklyn_home <- subset(brooklyn_neighborhoods, brooklyn_neighborhoods$room_type =="Entire home/apt")
+manhattan_home <- subset(manhattan_neighborhoods, manhattan_neighborhoods$room_type == "Entire home/apt")
+
+brooklyn_price <- brooklyn_home$price
+manhattan_price <- manhattan_home$price
+
+mean_brooklyn <- mean(brooklyn_price)
+mean_brooklyn
+mean_manhattan <- mean(manhattan_price)
+mean_manhattan
+
+variance_brooklyn <- var(brooklyn_price)
+variance_manhattan <- var(manhattan_price)
+
+len_brooklyn <- length(brooklyn_price)
+len_manhattan <- length(manhattan_price)
+
+sd_brooklyn_manhattan <- sqrt(variance_brooklyn/len_brooklyn + variance_manhattan/len_manhattan)
+
+z_score <- (mean_manhattan - mean_brooklyn) / sd_brooklyn_manhattan
+z_score
+
+p <- 1-pnorm(z_score)
+p
